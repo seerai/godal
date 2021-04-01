@@ -29,7 +29,7 @@ func main() {
 	}
 	fmt.Printf("Output filename: %s\n", outputFile)
 
-	fmt.Printf("GDALWarp options: %s\n", strings.Join(options, " "))
+	fmt.Printf("Warp options: %s\n", strings.Join(options, " "))
 
 	ds, err := gdal.Open(inputFile, gdal.ReadOnly)
 	if err != nil {
@@ -37,7 +37,7 @@ func main() {
 	}
 	defer ds.Close()
 
-	outputDs, err := gdal.GDALWarp(outputFile, gdal.Dataset{}, []gdal.Dataset{ds}, options)
+	outputDs, err := gdal.Warp(outputFile, gdal.Dataset{}, []gdal.Dataset{ds}, options)
 	defer outputDs.Close()
 	if err != nil {
 		log.Fatal(err)

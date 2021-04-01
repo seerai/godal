@@ -20,6 +20,5 @@ func main() {
 
 	outputDs.Close()
 
-	//outputDs := gdal.GDALWarp(outputFile, gdal.Dataset{}, []gdal.Dataset{ds}, options)
 	fmt.Printf("End program\n")
 }

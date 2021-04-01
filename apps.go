@@ -22,18 +22,18 @@ var _ = fmt.Println
 /* GDAL utilities                                */
 /* --------------------------------------------- */
 
-//GDALTranslateOptions holds options to be passed to gdal translated
-type GDALTranslateOptions struct {
+// TranslateOptions holds options to be passed to gdal translated
+type TranslateOptions struct {
 	cval *C.GDALTranslateOptions
 }
 
-//GDALWarpAppOptions holds options to be passed to gdal translated
-type GDALWarpAppOptions struct {
+// WarpAppOptions holds options to be passed to gdal translated
+type WarpAppOptions struct {
 	cval *C.GDALWarpAppOptions
 }
 
-//GDALTranslate is a utility to convert images into different formats
-func GDALTranslate(
+// Translate is a utility to convert images into different formats
+func Translate(
 	destName string,
 	srcDS Dataset,
 	options []string,
@@ -49,7 +49,7 @@ func GDALTranslate(
 	}
 	cOptions[length] = (*C.char)(unsafe.Pointer(nil))
 
-	gdalTranslateOptions := GDALTranslateOptions{C.GDALTranslateOptionsNew((**C.char)(unsafe.Pointer(&cOptions[0])), nil)}
+	gdalTranslateOptions := TranslateOptions{C.GDALTranslateOptionsNew((**C.char)(unsafe.Pointer(&cOptions[0])), nil)}
 
 	outputDs := C.GDALTranslate(
 		C.CString(destName),
@@ -62,8 +62,8 @@ func GDALTranslate(
 
 }
 
-//GDALWarp is a utility to warp images into different projections
-func GDALWarp(
+// Warp is a utility to warp images into different projections
+func Warp(
 	destName string,
 	dstDs Dataset,
 	srcDs []Dataset,
@@ -80,7 +80,7 @@ func GDALWarp(
 	}
 	cOptions[length] = (*C.char)(unsafe.Pointer(nil))
 
-	gdalWarpOptions := GDALWarpAppOptions{C.GDALWarpAppOptionsNew((**C.char)(unsafe.Pointer(&cOptions[0])), nil)}
+	gdalWarpOptions := WarpAppOptions{C.GDALWarpAppOptionsNew((**C.char)(unsafe.Pointer(&cOptions[0])), nil)}
 	if gdalWarpOptions.cval == nil {
 		fmt.Println("GDALWarpAppOptionsNew() returned a null pointer.")
 		return Dataset{}, ErrFailure
