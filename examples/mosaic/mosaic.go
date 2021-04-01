@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/illuminatly/godal"
+	"github.com/seerai/godal"
 )
 
 func main() {

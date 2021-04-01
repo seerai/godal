@@ -1,3 +1,3 @@
-module github.com/illuminatly/godal
+module github.com/seerai/godal
 
 go 1.15

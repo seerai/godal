@@ -8,7 +8,7 @@ It was also updated to support gdal 3.x, while the older version wouldn't work o
                                      
 ## Installation
 
-1) go get github.com/illuminatly/godal
+1) go get github.com/seerai/godal
 2) install gdal 3.x+ (including headers)
 3) go build 
 

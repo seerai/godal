@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/illuminatly/godal"
+	"github.com/seerai/godal"
 )
 
 func main() {
