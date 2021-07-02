@@ -209,6 +209,14 @@ const (
 	CI_Max            = ColorInterp(C.GCI_Max)
 )
 
+// SetConfigOption
+func SetConfigOption(key, value string) {
+	cKey := C.CString(key)
+	cValue := C.CString(value)
+
+	C.CPLSetConfigOption(cKey, cValue)
+}
+
 func (colorInterp ColorInterp) Name() string {
 	return C.GoString(C.GDALGetColorInterpretationName(C.GDALColorInterp(colorInterp)))
 }
