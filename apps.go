@@ -181,13 +181,24 @@ func Rasterize(outputDest string, outputDataset Dataset, inputDataset Dataset, o
 	}
 	defer C.GDALRasterizeOptionsFree(rasterizeOptions.cval)
 
-	outputDs := C.GDALRasterize(
-		C.CString(outputDest),
-		outputDataset.cval,
-		inputDataset.cval,
-		rasterizeOptions.cval,
-		&err,
-	)
+	var outputDs Dataset
+	if outputDest != "" {
+		outputDs = C.GDALRasterize(
+			C.CString(outputDest),
+			outputDataset.cval,
+			inputDataset.cval,
+			rasterizeOptions.cval,
+			&err,
+		)
+	} else {
+		outputDs = C.GDALRasterize(
+			nil,
+			outputDataset.cval,
+			inputDataset.cval,
+			rasterizeOptions.cval,
+			&err,
+		)
+	}
 
 	if err != 0 {
 		return Dataset{outputDs}, ErrFailure
