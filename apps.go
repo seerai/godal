@@ -181,7 +181,7 @@ func Rasterize(outputDest string, outputDataset Dataset, inputDataset Dataset, o
 	}
 	defer C.GDALRasterizeOptionsFree(rasterizeOptions.cval)
 
-	var outputDs Dataset
+	var outputDs C.GDALDatasetH
 	if outputDest != "" {
 		outputDs = C.GDALRasterize(
 			C.CString(outputDest),
