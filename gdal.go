@@ -175,6 +175,17 @@ const (
 	Update = Access(C.GA_Update)
 )
 
+// Open flags
+type OpenFlag int
+
+const (
+	GDALOFRaster   = OpenFlag(C.GDAL_OF_RASTER)
+	GDALOFVector   = OpenFlag(C.GDAL_OF_VECTOR)
+	GDALOFGNN      = OpenFlag(C.GDAL_OF_GNM)
+	GDALOFReadOnly = OpenFlag(C.GDAL_OF_READONLY)
+	GDALOFUpdate   = OpenFlag(C.GDAL_OF_UPDATE)
+)
+
 // Read/Write flag for RasterIO() method
 type RWFlag int
 
@@ -485,6 +496,34 @@ func Open(filename string, access Access) (Dataset, error) {
 		return Dataset{nil}, fmt.Errorf("Error: dataset '%s' open error", filename)
 	}
 	return Dataset{dataset}, nil
+}
+
+// Open an existing dataset
+func OpenEx(filename string, openFlags OpenFlag, allowedDrivers []string) (Dataset, error) {
+	cFilename := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFilename))
+
+	length := len(allowedDrivers)
+	cDrivers := make([]*C.char, length+1)
+	for i := 0; i < length; i++ {
+		cDrivers[i] = C.CString(allowedDrivers[i])
+		defer C.free(unsafe.Pointer(cDrivers[i]))
+	}
+	cDrivers[length] = (*C.char)(unsafe.Pointer(nil))
+
+	dataset := C.GDALOpenEx(
+		cFilename,
+		C.uint(openFlags),
+		(**C.char)(unsafe.Pointer(&cDrivers[0])),
+		nil, nil)
+
+	if dataset == nil {
+		return Dataset{nil}, fmt.Errorf("Error: dataset '%s' open error", filename)
+	}
+
+	ds := Dataset{dataset}
+
+	return ds, nil
 }
 
 // Open a shared existing dataset

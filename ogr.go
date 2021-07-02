@@ -1555,6 +1555,15 @@ func OpenDataSourceByIndex(index int) DataSource {
 	return DataSource{ds}
 }
 
+// Cast a Dataset (opened using OpenEx to an OGR DataSource)
+func (ds DataSource) FromDataset(d Dataset) {
+	ds.cval = (C.OGRDataSourceH)(d.cval)
+}
+
+func (ds DataSource) ToDataset() Dataset {
+	return Dataset{(C.GDALDatasetH)(ds.cval)}
+}
+
 // Closes datasource and releases resources
 func (ds DataSource) Destroy() {
 	C.OGR_DS_Destroy(ds.cval)

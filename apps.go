@@ -32,6 +32,11 @@ type WarpAppOptions struct {
 	cval *C.GDALWarpAppOptions
 }
 
+//RasterizeAppOptions options options to be passed to gdal
+type RasterizeAppOptions struct {
+	cval *C.GDALRasterizeOptions
+}
+
 // Translate is a utility to convert images into different formats
 func Translate(
 	destName string,
@@ -155,4 +160,39 @@ func BuildVRT(
 	)
 
 	return Dataset{outputDs}
+}
+
+// Rasterize creates a new dataset that is the rasterization of input features.
+func Rasterize(outputDest string, outputDataset Dataset, inputDataset Dataset, options []string) (Dataset, error) {
+	var err C.int
+
+	length := len(options)
+	cOptions := make([]*C.char, length+1)
+	for i := 0; i < length; i++ {
+		cOptions[i] = C.CString(options[i])
+		defer C.free(unsafe.Pointer(cOptions[i]))
+	}
+	cOptions[length] = (*C.char)(unsafe.Pointer(nil))
+
+	rasterizeOptions := RasterizeAppOptions{C.GDALRasterizeOptionsNew((**C.char)(unsafe.Pointer(&cOptions[0])), nil)}
+	if rasterizeOptions.cval == nil {
+		fmt.Println("GDALRasterizeOptionsNew() returned a null pointer.")
+		return Dataset{}, ErrFailure
+	}
+	defer C.GDALRasterizeOptionsFree(rasterizeOptions.cval)
+
+	outputDs := C.GDALRasterize(
+		C.CString(outputDest),
+		outputDataset.cval,
+		inputDataset.cval,
+		rasterizeOptions.cval,
+		&err,
+	)
+
+	if err != 0 {
+		return Dataset{outputDs}, ErrFailure
+	}
+
+	return Dataset{outputDs}, nil
+
 }
