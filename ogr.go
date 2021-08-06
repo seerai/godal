@@ -1556,7 +1556,7 @@ func OpenDataSourceByIndex(index int) DataSource {
 }
 
 // Cast a Dataset (opened using OpenEx to an OGR DataSource)
-func (ds DataSource) FromDataset(d Dataset) {
+func (ds *DataSource) FromDataset(d Dataset) {
 	ds.cval = (C.OGRDataSourceH)(d.cval)
 }
 
