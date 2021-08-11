@@ -1194,6 +1194,8 @@ const (
 	OAMSCustom              = AxisMappingStrategy(C.OAMS_CUSTOM)
 )
 
-func (sr SpatialReference) SetAxisMappingStrategry(ams AxisMappingStrategy) {
+// SetAxisMappingStrategy to adjust coordinate order. Typically in GIS applications, this should be set to
+// OAMSTraditionalGISOrder
+func (sr SpatialReference) SetAxisMappingStrategy(ams AxisMappingStrategy) {
 	C.OSRSetAxisMappingStrategy(sr.cval, C.OSRAxisMappingStrategy(ams))
 }
