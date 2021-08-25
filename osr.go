@@ -26,10 +26,10 @@ type SpatialReference struct {
 // Create a new SpatialReference
 func CreateSpatialReference(wkt *string) SpatialReference {
 	if wkt != nil {
-	    cString := C.CString(*wkt)
-	    defer C.free(unsafe.Pointer(cString))
-	    sr := C.OSRNewSpatialReference(cString)
-	    return SpatialReference{sr}
+		cString := C.CString(*wkt)
+		defer C.free(unsafe.Pointer(cString))
+		sr := C.OSRNewSpatialReference(cString)
+		return SpatialReference{sr}
 	}
 	sr := C.OSRNewSpatialReference(nil)
 	return SpatialReference{sr}
@@ -108,8 +108,6 @@ func (sr SpatialReference) Release() {
 func (sr SpatialReference) Validate() error {
 	return C.OSRValidate(sr.cval).Err()
 }
-
-
 
 // Import PROJ.4 coordinate string
 func (sr SpatialReference) FromProj4(input string) error {
@@ -1184,3 +1182,20 @@ func (ct CoordinateTransform) Transform(numPoints int, xPoints []float64, yPoint
 	return int(val) != 0
 }
 
+/* ------------------------------------------------------------------ */
+/*                             Axis Mapping
+/* ------------------------------------------------------------------ */
+
+type AxisMappingStrategy uint32
+
+const (
+	OAMSTraditionalGISOrder = AxisMappingStrategy(C.OAMS_TRADITIONAL_GIS_ORDER)
+	OAMSAuthorityCompliant  = AxisMappingStrategy(C.OAMS_AUTHORITY_COMPLIANT)
+	OAMSCustom              = AxisMappingStrategy(C.OAMS_CUSTOM)
+)
+
+// SetAxisMappingStrategy to adjust coordinate order. Typically in GIS applications, this should be set to
+// OAMSTraditionalGISOrder
+func (sr SpatialReference) SetAxisMappingStrategy(ams AxisMappingStrategy) {
+	C.OSRSetAxisMappingStrategy(sr.cval, C.OSRAxisMappingStrategy(ams))
+}
