@@ -1903,6 +1903,21 @@ func VSIUnlink(filename string) (bool, error) {
 	}
 }
 
+func VSIFileFromMemBuffer(filename string, data []byte, takeOwnership bool) (VSIFile, error) {
+
+	cFileName := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFileName))
+
+	l := len(data)
+	p := unsafe.Pointer(&data[0])
+	file := C.VSIFileFromMemBuffer(cFileName, (*C.uchar)(p), C.ulonglong(l), C.FALSE)
+
+	if file == nil {
+		return VSIFile{nil}, fmt.Errorf("Error: VSIFileFromMemBuffer '%s' open error", filename)
+	}
+	return VSIFile{file}, nil
+}
+
 /*
 type GoBuildVRTOptions struct {
 	extent          [4]float64 // spatial extent of the output VRT {x0 y0 x1 y1}
