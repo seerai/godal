@@ -33,4 +33,6 @@ func main() {
 	fmt.Println(ds.Driver().LongName())
 
 	defer gdal.VSIFCloseL(vf)
+	defer gdal.VSIUnlink("/vsimem/test.tif")
+	
 }
