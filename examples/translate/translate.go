@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/seerai/godal"
+	gdal "github.com/seerai/godal"
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	outputDs := gdal.GDALTranslate(outputFile, ds, options)
+	outputDs := gdal.Translate(outputFile, ds, options)
 
 	defer outputDs.Close()
 

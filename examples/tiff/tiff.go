@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/seerai/godal"
+	gdal "github.com/seerai/godal"
 )
 
 func main() {
@@ -49,7 +49,7 @@ func main() {
 	defer dataset.Close()
 
 	fmt.Printf("Creating projection\n")
-	spatialRef := gdal.CreateSpatialReference("")
+	spatialRef := gdal.CreateSpatialReference(nil)
 
 	fmt.Printf("Setting EPSG code\n")
 	spatialRef.FromEPSG(3857)
