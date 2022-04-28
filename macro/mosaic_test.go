@@ -3,7 +3,7 @@ package macro
 import (
 	"testing"
 
-	"github.com/Rob-Fletcher/go-gdal"
+	gdal "github.com/seerai/godal"
 )
 
 const S3_BUCKET_URL = "/vsis3/imagerytest"

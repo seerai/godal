@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Rob-Fletcher/go-gdal"
+	gdal "github.com/seerai/godal"
 )
 
 // Mosaic accepts a list of files (including VSI files) and mosaics them together and outputs them in the provided

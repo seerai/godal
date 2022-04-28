@@ -499,23 +499,44 @@ func Open(filename string, access Access) (Dataset, error) {
 }
 
 // Open an existing dataset
-func OpenEx(filename string, openFlags OpenFlag, allowedDrivers []string) (Dataset, error) {
+func OpenEx(
+	filename string,
+	openFlags OpenFlag,
+	allowedDrivers []string,
+	openOptions []string,
+	siblingFiles []string) (Dataset, error) {
+
 	cFilename := C.CString(filename)
 	defer C.free(unsafe.Pointer(cFilename))
 
-	length := len(allowedDrivers)
-	cDrivers := make([]*C.char, length+1)
-	for i := 0; i < length; i++ {
+	cDrivers := make([]*C.char, len(allowedDrivers)+1)
+	for i := 0; i < len(allowedDrivers); i++ {
 		cDrivers[i] = C.CString(allowedDrivers[i])
 		defer C.free(unsafe.Pointer(cDrivers[i]))
 	}
-	cDrivers[length] = (*C.char)(unsafe.Pointer(nil))
+	cDrivers[len(allowedDrivers)] = (*C.char)(unsafe.Pointer(nil))
+
+	cOptions := make([]*C.char, len(openOptions)+1)
+	for i := 0; i < len(openOptions); i++ {
+		cOptions[i] = C.CString(openOptions[i])
+		defer C.free(unsafe.Pointer(cOptions[i]))
+	}
+	cOptions[len(openOptions)] = (*C.char)(unsafe.Pointer(nil))
+
+	cSiblingFiles := make([]*C.char, len(siblingFiles)+1)
+	for i := 0; i < len(siblingFiles); i++ {
+		cSiblingFiles[i] = C.CString(siblingFiles[i])
+		defer C.free(unsafe.Pointer(cSiblingFiles[i]))
+	}
+	cSiblingFiles[len(siblingFiles)] = (*C.char)(unsafe.Pointer(nil))
 
 	dataset := C.GDALOpenEx(
 		cFilename,
 		C.uint(openFlags),
 		(**C.char)(unsafe.Pointer(&cDrivers[0])),
-		nil, nil)
+		(**C.char)(unsafe.Pointer(&cOptions[0])),
+		(**C.char)(unsafe.Pointer(&cSiblingFiles[0])),
+	)
 
 	if dataset == nil {
 		return Dataset{nil}, fmt.Errorf("Error: dataset '%s' open error", filename)
@@ -1901,6 +1922,21 @@ func VSIUnlink(filename string) (bool, error) {
 	} else {
 		return false, errors.New(fmt.Sprintf("Error deleting file %v ", filename))
 	}
+}
+
+func VSIFileFromMemBuffer(filename string, data []byte, takeOwnership bool) (VSIFile, error) {
+
+	cFileName := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFileName))
+
+	l := len(data)
+	p := unsafe.Pointer(&data[0])
+	file := C.VSIFileFromMemBuffer(cFileName, (*C.uchar)(p), C.ulonglong(l), C.FALSE)
+
+	if file == nil {
+		return VSIFile{nil}, fmt.Errorf("Error: VSIFileFromMemBuffer '%s' open error", filename)
+	}
+	return VSIFile{file}, nil
 }
 
 /*
