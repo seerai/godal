@@ -9,12 +9,14 @@ It was also updated to support gdal 3.x, while the older version wouldn't work o
 ## Installation
 
 1) go get github.com/seerai/godal
-2) install gdal 3.x+ (including headers)
+2) install libgdal-dev 3.5+
+    - See [gdal's installation documentation for more details](https://gdal.org/download.html#). Note that many repos are not updated to 3.5 yet in which case there are [instructions for building from source](https://gdal.org/download.html#build-instructions).
 3) go build 
+
 
 ## Compatibility
 
-This software has been tested most recently on Ubuntu 20.04 with gdal 3.1
+This software has been tested most recently on Ubuntu 20.04 with gdal 3.5
 
 ## Examples
 
