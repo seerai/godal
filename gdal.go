@@ -1939,6 +1939,29 @@ func VSIFileFromMemBuffer(filename string, data []byte, takeOwnership bool) (VSI
 	return VSIFile{file}, nil
 }
 
+// Set a credential (or more generally an option related to a virtual file system) for a given path prefix.
+func VSISetCredential(path string, key string, value string) {
+
+	cPath := C.CString(path)
+	cKey := C.CString(key)
+	cValue := C.CString(value)
+	defer func() {
+		C.free(unsafe.Pointer(cPath))
+		C.free(unsafe.Pointer(cKey))
+		C.free(unsafe.Pointer(cValue))
+	}()
+
+	C.VSISetCredential(cPath, cKey, cValue)
+}
+
+// Clear credentials set with VSISetCredential()
+func VSIClearCredentials(path string) {
+	cPath := C.CString(path)
+	defer C.free(unsafe.Pointer(cPath))
+
+	C.VSIClearCredentials(cPath)
+}
+
 /*
 type GoBuildVRTOptions struct {
 	extent          [4]float64 // spatial extent of the output VRT {x0 y0 x1 y1}
