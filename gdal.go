@@ -1970,7 +1970,7 @@ func VSIGetCredential(path string, key string) string {
 	defer func() {
 		C.free(unsafe.Pointer(cPath))
 		C.free(unsafe.Pointer(cKey))
-		C.free(unsafe.Pointer(&cDefault))
+		C.free(unsafe.Pointer(cDefault))
 	}()
 	value := C.VSIGetCredential(cPath, cKey, cDefault)
 	return C.GoString(value)
