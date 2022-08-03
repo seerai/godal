@@ -1962,6 +1962,21 @@ func VSIClearCredentials(path string) {
 	C.VSIClearCredentials(cPath)
 }
 
+// Clear credentials set with VSISetCredential()
+func VSIGetCredential(path string, key string) string {
+	cPath := C.CString(path)
+	cKey := C.CString(key)
+	cDefault := C.CString("Default")
+	defer func() {
+		C.free(unsafe.Pointer(cPath))
+		C.free(unsafe.Pointer(cKey))
+		C.free(unsafe.Pointer(&cDefault))
+	}()
+	value := C.VSIGetCredential(cPath, cKey, cDefault)
+	return C.GoString(value)
+
+}
+
 /*
 type GoBuildVRTOptions struct {
 	extent          [4]float64 // spatial extent of the output VRT {x0 y0 x1 y1}
