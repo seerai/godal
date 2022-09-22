@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  Test-and-Release:
+  test:
     runs-on: ubuntu-latest
     container: golang:1-alpine
 
@@ -23,6 +23,7 @@ jobs:
             gdal-dev \
             blosc \
             blosc-dev \
+            g++
       - name: Run Tests
         run: |
           go test -short ./... -coverprofile=coverage.out -covermode=atomic
@@ -32,6 +33,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           files: ./coverage.out
+  release:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Increment Semver
         id: semver
         uses: paulhatch/semantic-version@v4.0.3
