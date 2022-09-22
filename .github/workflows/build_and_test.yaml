@@ -1,0 +1,33 @@
+name: Build/Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  Build-Test:
+    runs-on: ubuntu-latest
+    container: golang:1-alpine
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install GDAL Dev libs
+        run: |
+          apk add --no-cache \
+            git \
+            openssh \
+            libspatialite \
+            gdal-dev \
+            blosc \
+            blosc-dev \
+            g++
+      - name: Run Tests
+        run: |
+          go test -short ./... -coverprofile=coverage.out -covermode=atomic
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage.out
