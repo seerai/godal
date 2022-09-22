@@ -15,13 +15,13 @@ import (
 	"unsafe"
 )
 
-// Get the driver to which this dataset relates
+// Driver gets the driver to which this dataset relates
 func (dataset Dataset) Driver() Driver {
 	driver := Driver{C.GDALGetDatasetDriver(dataset.cval)}
 	return driver
 }
 
-// Fetch files forming the dataset.
+// FileList fetches files forming the dataset.
 func (dataset Dataset) FileList() []string {
 	p := C.GDALGetFileList(dataset.cval)
 	var strings []string
@@ -38,37 +38,37 @@ func (dataset Dataset) FileList() []string {
 	return strings
 }
 
-// Close the dataset
+// Close closes the dataset
 func (dataset Dataset) Close() {
 	C.GDALClose(dataset.cval)
 	return
 }
 
-// Fetch X size of raster
+// RasterXSize fetches X size of raster
 func (dataset Dataset) RasterXSize() int {
 	xSize := int(C.GDALGetRasterXSize(dataset.cval))
 	return xSize
 }
 
-// Fetch Y size of raster
+// RasterYSize fetches Y size of raster
 func (dataset Dataset) RasterYSize() int {
 	ySize := int(C.GDALGetRasterYSize(dataset.cval))
 	return ySize
 }
 
-// Fetch the number of raster bands in the dataset
+// RasterCount fetches the number of raster bands in the dataset
 func (dataset Dataset) RasterCount() int {
 	count := int(C.GDALGetRasterCount(dataset.cval))
 	return count
 }
 
-// Fetch a raster band object from a dataset
+// RasterBand fetches a raster band object from a dataset
 func (dataset Dataset) RasterBand(band int) RasterBand {
 	rasterBand := RasterBand{C.GDALGetRasterBand(dataset.cval, C.int(band))}
 	return rasterBand
 }
 
-// Add a band to a dataset
+// AddBand adds a band to a dataset
 func (dataset Dataset) AddBand(dataType DataType, options []string) error {
 	length := len(options)
 	cOptions := make([]*C.char, length+1)
@@ -85,14 +85,13 @@ func (dataset Dataset) AddBand(dataType DataType, options []string) error {
 	).Err()
 }
 
+// AutoCreateWarpedVRT creates a warped VRT from a source to destination projection specified as WKT
 func (dataset Dataset) AutoCreateWarpedVRT(srcWKT, dstWKT string, resampleAlg ResampleAlg) (Dataset, error) {
 	c_srcWKT := C.CString(srcWKT)
 	defer C.free(unsafe.Pointer(c_srcWKT))
 	c_dstWKT := C.CString(dstWKT)
 	defer C.free(unsafe.Pointer(c_dstWKT))
-	/*
 
-	 */
 	h := C.GDALAutoCreateWarpedVRT(dataset.cval, c_srcWKT, c_dstWKT, C.GDALResampleAlg(resampleAlg), 0.0, nil)
 	d := Dataset{h}
 	if h == nil {
@@ -105,7 +104,7 @@ func (dataset Dataset) AutoCreateWarpedVRT(srcWKT, dstWKT string, resampleAlg Re
 // Unimplemented: GDALBeginAsyncReader
 // Unimplemented: GDALEndAsyncReader
 
-// Read / write a region of image data from multiple bands
+// IO reads / writes a region of image data from multiple bands
 func (dataset Dataset) IO(
 	rwFlag RWFlag,
 	xOff, yOff, xSize, ySize int,
@@ -166,6 +165,7 @@ func (dataset Dataset) IO(
 	).Err()
 }
 
+// BasicRead reads from a dataset with some basic and very common assumptions
 func (dataset Dataset) BasicRead(
 	xOff, yOff, xSize, ySize int,
 	bands []int,
@@ -191,6 +191,7 @@ func (dataset Dataset) BasicRead(
 	)
 }
 
+// BasicWrite writes to a dataset with some basic and very common assumptions
 func (dataset Dataset) BasicWrite(
 	xOff, yOff, xSize, ySize int,
 	bands []int,
@@ -216,7 +217,7 @@ func (dataset Dataset) BasicWrite(
 	)
 }
 
-// Advise driver of upcoming read requests
+// AdviseRead advises driver of upcoming read requests
 func (dataset Dataset) AdviseRead(
 	rwFlag RWFlag,
 	xOff, yOff, xSize, ySize, bufXSize, bufYSize int,
@@ -244,13 +245,13 @@ func (dataset Dataset) AdviseRead(
 	).Err()
 }
 
-// Fetch the projection definition string for this dataset
+// Projection fetches the projection definition string for this dataset
 func (dataset Dataset) Projection() string {
 	proj := C.GoString(C.GDALGetProjectionRef(dataset.cval))
 	return proj
 }
 
-// Set the projection reference string
+// SetProjection sets the projection reference string
 func (dataset Dataset) SetProjection(proj string) error {
 	cProj := C.CString(proj)
 	defer C.free(unsafe.Pointer(cProj))
@@ -258,14 +259,14 @@ func (dataset Dataset) SetProjection(proj string) error {
 	return C.GDALSetProjection(dataset.cval, cProj).Err()
 }
 
-// Get the affine transformation coefficients
+// GeoTransform gets the affine transformation coefficients
 func (dataset Dataset) GeoTransform() [6]float64 {
 	var transform [6]float64
 	C.GDALGetGeoTransform(dataset.cval, (*C.double)(unsafe.Pointer(&transform[0])))
 	return transform
 }
 
-// Set the affine transformation coefficients
+// SetGeoTransform sets the affine transformation coefficients
 func (dataset Dataset) SetGeoTransform(transform [6]float64) error {
 	return C.GDALSetGeoTransform(
 		dataset.cval,
@@ -273,20 +274,20 @@ func (dataset Dataset) SetGeoTransform(transform [6]float64) error {
 	).Err()
 }
 
-// Return the inverted transform
+// InvGeoTransform returns the inverted transform
 func (dataset Dataset) InvGeoTransform() [6]float64 {
 	return InvGeoTransform(dataset.GeoTransform())
 }
 
-// Invert the supplied transform
+// InvGeoTransform inverts the supplied transform
 func InvGeoTransform(transform [6]float64) [6]float64 {
 	var result [6]float64
 	C.GDALInvGeoTransform((*C.double)(unsafe.Pointer(&transform[0])), (*C.double)(unsafe.Pointer(&result[0])))
 	return result
 }
 
-// Get number of GCPs
-func (dataset Dataset) GDALGetGCPCount() int {
+// GetGCPCount gets number of GCPs
+func (dataset Dataset) GetGCPCount() int {
 	count := C.GDALGetGCPCount(dataset.cval)
 	return int(count)
 }
@@ -295,8 +296,8 @@ func (dataset Dataset) GDALGetGCPCount() int {
 // Unimplemented: GDALGetGCPs
 // Unimplemented: GDALSetGCPs
 
-// Fetch a format specific internally meaningful handle
-func (dataset Dataset) GDALGetInternalHandle(request string) unsafe.Pointer {
+// GetInternalHandle fetches a format specific internally meaningful handle
+func (dataset Dataset) GetInternalHandle(request string) unsafe.Pointer {
 	cRequest := C.CString(request)
 	defer C.free(unsafe.Pointer(cRequest))
 
@@ -304,19 +305,19 @@ func (dataset Dataset) GDALGetInternalHandle(request string) unsafe.Pointer {
 	return ptr
 }
 
-// Add one to dataset reference count
-func (dataset Dataset) GDALReferenceDataset() int {
+// ReferenceDataset adds one to dataset reference count
+func (dataset Dataset) ReferenceDataset() int {
 	count := C.GDALReferenceDataset(dataset.cval)
 	return int(count)
 }
 
-// Subtract one from dataset reference count
-func (dataset Dataset) GDALDereferenceDataset() int {
+// DereferenceDataset subtracts one from dataset reference count
+func (dataset Dataset) DereferenceDataset() int {
 	count := C.GDALDereferenceDataset(dataset.cval)
 	return int(count)
 }
 
-// Build raster overview(s)
+// BuildOverviews builds raster overview(s)
 func (dataset Dataset) BuildOverviews(
 	resampling string,
 	nOverviews int,
@@ -345,24 +346,24 @@ func (dataset Dataset) BuildOverviews(
 
 // Unimplemented: GDALGetOpenDatasets
 
-// Return access flag
+// Access returns access flag
 func (dataset Dataset) Access() Access {
 	accessVal := C.GDALGetAccess(dataset.cval)
 	return Access(accessVal)
 }
 
-// Write all write cached data to disk
+// FlushCache writes all write cached data to disk
 func (dataset Dataset) FlushCache() {
 	C.GDALFlushCache(dataset.cval)
 	return
 }
 
-// Adds a mask band to the dataset
+// CreateMaskBand adds a mask band to the dataset
 func (dataset Dataset) CreateMaskBand(flags int) error {
 	return C.GDALCreateDatasetMaskBand(dataset.cval, C.int(flags)).Err()
 }
 
-// Copy all dataset raster data
+// CopyWholeRaster copies all dataset raster data
 func (sourceDataset Dataset) CopyWholeRaster(
 	destDataset Dataset,
 	options []string,
