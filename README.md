@@ -1,3 +1,6 @@
+# GoDAL - Go Wrappers around the Geospatial Abstraction Library
+[![Build](https://github.com/seerai/godal/actions/workflows/build_and_release.yaml/badge.svg)](https://github.com/seerai/godal/actions/workflows/build_and_release.yaml)
+
 ## About
 
 The gdal.go package provides a go wrapper for GDAL, the Geospatial Data Abstraction Library. More information about GDAL can be found at http://www.gdal.org
