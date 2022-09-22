@@ -7,17 +7,21 @@ on:
 jobs:
   Build-Test:
     runs-on: ubuntu-latest
+    container: golang:1-alpine
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: "1.19"
+
       - name: Install GDAL Dev libs
         run: |
-          sudo add-apt-repository ppa:ubuntugis/ppa
-          sudo apt-get update
-          sudo apt-get install -y libgdal-dev
+          apk add --no-cache \
+            git \
+            openssh \
+            libspatialite \
+            gdal-dev \
+            blosc \
+            blosc-dev \
+            g++
       - name: Run Tests
         run: |
           go test -short ./... -coverprofile=coverage.out -covermode=atomic

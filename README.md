@@ -1,5 +1,6 @@
 # GoDAL - Go Wrappers around the Geospatial Abstraction Library
 [![Build](https://github.com/seerai/godal/actions/workflows/build_and_release.yaml/badge.svg)](https://github.com/seerai/godal/actions/workflows/build_and_release.yaml)
+[![codecov](https://codecov.io/gh/seerai/godal/branch/main/graph/badge.svg?token=WQ4V3VYWHY)](https://codecov.io/gh/seerai/godal)
 
 ## About
 
