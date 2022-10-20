@@ -124,6 +124,14 @@ func (sr SpatialReference) ToProj4() (string, error) {
 	return proj4, err
 }
 
+// ToProjJSON exports a spatial reference in PROJJSON format
+func (sr SpatialReference) ToProjJSON() (string, error) {
+	var p *C.char
+	err := C.OSRExportToPROJJSON(sr.cval, &p, nil).Err()
+	projjson := C.GoString(p)
+	return projjson, err
+}
+
 // Import coordinate system from ESRI .prj formats
 func (sr SpatialReference) FromESRI(input string) error {
 	cString := C.CString(input)
