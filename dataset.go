@@ -12,6 +12,7 @@ package gdal
 import "C"
 import (
 	"fmt"
+	"reflect"
 	"unsafe"
 )
 
@@ -115,6 +116,14 @@ func (dataset Dataset) IO(
 	pixelSpace, lineSpace, bandSpace int,
 	readRawBytes bool,
 ) error {
+	val := reflect.ValueOf(buffer)
+	if val.Kind() != reflect.Slice {
+		return fmt.Errorf("Error: buffer must be a slice. Kind=%s", val.Kind())
+	}
+	if val.Len() == 0 {
+		return fmt.Errorf("Error: buffer cannot be 0 length. length=%d", val.Len())
+	}
+
 	var dataType DataType
 	var dataPtr unsafe.Pointer
 	if readRawBytes {
