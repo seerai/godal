@@ -71,8 +71,11 @@ func (sr SpatialReference) FromEPSGA(code int) error {
 }
 
 // Destroy the spatial reference
-func (sr SpatialReference) Destroy() {
-	C.OSRDestroySpatialReference(sr.cval)
+func (sr *SpatialReference) Destroy() {
+	if sr.cval != nil {
+		C.OSRDestroySpatialReference(sr.cval)
+		sr.cval = nil
+	}
 }
 
 // Make a duplicate of this spatial reference
@@ -1181,8 +1184,11 @@ func CreateCoordinateTransform(
 }
 
 // Destroy CoordinateTransform
-func (ct CoordinateTransform) Destroy() {
-	C.OCTDestroyCoordinateTransformation(ct.cval)
+func (ct *CoordinateTransform) Destroy() {
+	if ct.cval != nil {
+		C.OCTDestroyCoordinateTransformation(ct.cval)
+		ct.cval = nil
+	}
 }
 
 func (ct CoordinateTransform) Transform(numPoints int, xPoints []float64, yPoints []float64, zPoints []float64) bool {

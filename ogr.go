@@ -199,7 +199,7 @@ type Geometry struct {
 	cval C.OGRGeometryH
 }
 
-//Create a geometry object from its well known binary representation
+// Create a geometry object from its well known binary representation
 func CreateFromWKB(wkb []uint8, srs SpatialReference, bytes int) (Geometry, error) {
 	pabyData := (unsafe.Pointer(&wkb[0]))
 	var newGeom Geometry
@@ -208,7 +208,7 @@ func CreateFromWKB(wkb []uint8, srs SpatialReference, bytes int) (Geometry, erro
 	).Err()
 }
 
-//Create a geometry object from its well known text representation
+// Create a geometry object from its well known text representation
 func CreateFromWKT(wkt string, srs SpatialReference) (Geometry, error) {
 	cString := C.CString(wkt)
 	defer C.free(unsafe.Pointer(cString))
@@ -218,7 +218,7 @@ func CreateFromWKT(wkt string, srs SpatialReference) (Geometry, error) {
 	).Err()
 }
 
-//Create a geometry object from its GeoJSON representation
+// Create a geometry object from its GeoJSON representation
 func CreateFromJson(_json string) Geometry {
 	cString := C.CString(_json)
 	defer C.free(unsafe.Pointer(cString))
@@ -228,8 +228,11 @@ func CreateFromJson(_json string) Geometry {
 }
 
 // Destroy geometry object
-func (geometry Geometry) Destroy() {
-	C.OGR_G_DestroyGeometry(geometry.cval)
+func (geometry *Geometry) Destroy() {
+	if geometry.cval != nil {
+		C.OGR_G_DestroyGeometry(geometry.cval)
+		geometry.cval = nil
+	}
 }
 
 // Create an empty geometry of the desired type
@@ -780,8 +783,11 @@ func CreateFieldDefinition(name string, fieldType FieldType) FieldDefinition {
 }
 
 // Destroy the field definition
-func (fd FieldDefinition) Destroy() {
-	C.OGR_Fld_Destroy(fd.cval)
+func (fd *FieldDefinition) Destroy() {
+	if fd.cval != nil {
+		C.OGR_Fld_Destroy(fd.cval)
+		fd.cval = nil
+	}
 }
 
 // Fetch the name of the field
@@ -895,8 +901,11 @@ func CreateFeatureDefinition(name string) FeatureDefinition {
 }
 
 // Destroy a feature definition object
-func (fd FeatureDefinition) Destroy() {
-	C.OGR_FD_Destroy(fd.cval)
+func (fd *FeatureDefinition) Destroy() {
+	if fd.cval != nil {
+		C.OGR_FD_Destroy(fd.cval)
+		fd.cval = nil
+	}
 }
 
 // Drop a reference, and delete object if no references remain
@@ -1006,8 +1015,11 @@ func (fd FeatureDefinition) Create() Feature {
 }
 
 // Destroy this feature
-func (feature Feature) Destroy() {
-	C.OGR_F_Destroy(feature.cval)
+func (feature *Feature) Destroy() {
+	if feature.cval != nil {
+		C.OGR_F_Destroy(feature.cval)
+		feature.cval = nil
+	}
 }
 
 // Fetch feature definition
@@ -1565,8 +1577,11 @@ func (ds DataSource) ToDataset() Dataset {
 }
 
 // Closes datasource and releases resources
-func (ds DataSource) Destroy() {
-	C.OGR_DS_Destroy(ds.cval)
+func (ds *DataSource) Destroy() {
+	if ds.cval != nil {
+		C.OGR_DS_Destroy(ds.cval)
+		ds.cval = nil
+	}
 }
 
 // Fetch the name of the data source

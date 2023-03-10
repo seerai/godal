@@ -40,8 +40,11 @@ func (dataset Dataset) FileList() []string {
 }
 
 // Close closes the dataset
-func (dataset Dataset) Close() {
-	C.GDALClose(dataset.cval)
+func (dataset *Dataset) Close() {
+	if dataset.cval != nil {
+		C.GDALClose(dataset.cval)
+		dataset.cval = nil
+	}
 	return
 }
 

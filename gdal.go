@@ -583,8 +583,11 @@ func GetDriver(index int) Driver {
 }
 
 // Destroy a GDAL driver
-func (driver Driver) Destroy() {
-	C.GDALDestroyDriver(driver.cval)
+func (driver *Driver) Destroy() {
+	if driver.cval != nil {
+		C.GDALDestroyDriver(driver.cval)
+		driver.cval = nil
+	}
 }
 
 // Registers a driver for use
@@ -1274,8 +1277,11 @@ func CreateColorTable(interp PaletteInterp) ColorTable {
 }
 
 // Destroy the color table
-func (ct ColorTable) Destroy() {
-	C.GDALDestroyColorTable(ct.cval)
+func (ct *ColorTable) Destroy() {
+	if ct.cval != nil {
+		C.GDALDestroyColorTable(ct.cval)
+		ct.cval = nil
+	}
 }
 
 // Make a copy of the color table
@@ -1363,8 +1369,11 @@ func CreateRasterAttributeTable() RasterAttributeTable {
 }
 
 // Destroy a RAT
-func (rat RasterAttributeTable) Destroy() {
-	C.GDALDestroyRasterAttributeTable(rat.cval)
+func (rat *RasterAttributeTable) Destroy() {
+	if rat.cval != nil {
+		C.GDALDestroyRasterAttributeTable(rat.cval)
+		rat.cval = nil
+	}
 }
 
 // Fetch table column count
