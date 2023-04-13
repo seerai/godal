@@ -66,3 +66,9 @@ func TestBasidReadWrite(t *testing.T) {
 	}
 
 }
+
+func TestDatasetMetadata(t *testing.T) {
+	d := gdal.Dataset{}
+	md := d.Metadata("does not exist")
+	assert.Equal(t, []string(nil), md)
+}
