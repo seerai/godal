@@ -82,10 +82,12 @@ func (dataset Dataset) AddBand(dataType DataType, options []string) error {
 	}
 	cOptions[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALAddBand(
-		dataset.cval,
-		C.GDALDataType(dataType),
-		(**C.char)(unsafe.Pointer(&cOptions[0])),
+	return CPLErr(
+		C.GDALAddBand(
+			dataset.cval,
+			C.GDALDataType(dataType),
+			(**C.char)(unsafe.Pointer(&cOptions[0])),
+		),
 	).Err()
 }
 
@@ -164,16 +166,18 @@ func (dataset Dataset) IO(
 		}
 	}
 
-	return C.GDALDatasetRasterIO(
-		dataset.cval,
-		C.GDALRWFlag(rwFlag),
-		C.int(xOff), C.int(yOff), C.int(xSize), C.int(ySize),
-		dataPtr,
-		C.int(bufXSize), C.int(bufYSize),
-		C.GDALDataType(dataType),
-		C.int(bandCount),
-		(*C.int)(unsafe.Pointer(&IntSliceToCInt(bandMap)[0])),
-		C.int(pixelSpace), C.int(lineSpace), C.int(bandSpace),
+	return CPLErr(
+		C.GDALDatasetRasterIO(
+			dataset.cval,
+			C.GDALRWFlag(rwFlag),
+			C.int(xOff), C.int(yOff), C.int(xSize), C.int(ySize),
+			dataPtr,
+			C.int(bufXSize), C.int(bufYSize),
+			C.GDALDataType(dataType),
+			C.int(bandCount),
+			(*C.int)(unsafe.Pointer(&IntSliceToCInt(bandMap)[0])),
+			C.int(pixelSpace), C.int(lineSpace), C.int(bandSpace),
+		),
 	).Err()
 }
 
@@ -246,14 +250,16 @@ func (dataset Dataset) AdviseRead(
 	}
 	cOptions[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALDatasetAdviseRead(
-		dataset.cval,
-		C.int(xOff), C.int(yOff), C.int(xSize), C.int(ySize),
-		C.int(bufXSize), C.int(bufYSize),
-		C.GDALDataType(dataType),
-		C.int(bandCount),
-		(*C.int)(unsafe.Pointer(&IntSliceToCInt(bandMap)[0])),
-		(**C.char)(unsafe.Pointer(&cOptions[0])),
+	return CPLErr(
+		C.GDALDatasetAdviseRead(
+			dataset.cval,
+			C.int(xOff), C.int(yOff), C.int(xSize), C.int(ySize),
+			C.int(bufXSize), C.int(bufYSize),
+			C.GDALDataType(dataType),
+			C.int(bandCount),
+			(*C.int)(unsafe.Pointer(&IntSliceToCInt(bandMap)[0])),
+			(**C.char)(unsafe.Pointer(&cOptions[0])),
+		),
 	).Err()
 }
 
@@ -268,7 +274,7 @@ func (dataset Dataset) SetProjection(proj string) error {
 	cProj := C.CString(proj)
 	defer C.free(unsafe.Pointer(cProj))
 
-	return C.GDALSetProjection(dataset.cval, cProj).Err()
+	return CPLErr(C.GDALSetProjection(dataset.cval, cProj)).Err()
 }
 
 // GeoTransform gets the affine transformation coefficients
@@ -280,9 +286,11 @@ func (dataset Dataset) GeoTransform() [6]float64 {
 
 // SetGeoTransform sets the affine transformation coefficients
 func (dataset Dataset) SetGeoTransform(transform [6]float64) error {
-	return C.GDALSetGeoTransform(
-		dataset.cval,
-		(*C.double)(unsafe.Pointer(&transform[0])),
+	return CPLErr(
+		C.GDALSetGeoTransform(
+			dataset.cval,
+			(*C.double)(unsafe.Pointer(&transform[0])),
+		),
 	).Err()
 }
 
@@ -344,15 +352,17 @@ func (dataset Dataset) BuildOverviews(
 
 	arg := &goGDALProgressFuncProxyArgs{progress, data}
 
-	return C.GDALBuildOverviews(
-		dataset.cval,
-		cResampling,
-		C.int(nOverviews),
-		(*C.int)(unsafe.Pointer(&IntSliceToCInt(overviewList)[0])),
-		C.int(nBands),
-		(*C.int)(unsafe.Pointer(&IntSliceToCInt(bandList)[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALBuildOverviews(
+			dataset.cval,
+			cResampling,
+			C.int(nOverviews),
+			(*C.int)(unsafe.Pointer(&IntSliceToCInt(overviewList)[0])),
+			C.int(nBands),
+			(*C.int)(unsafe.Pointer(&IntSliceToCInt(bandList)[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
 
@@ -372,7 +382,7 @@ func (dataset Dataset) FlushCache() {
 
 // CreateMaskBand adds a mask band to the dataset
 func (dataset Dataset) CreateMaskBand(flags int) error {
-	return C.GDALCreateDatasetMaskBand(dataset.cval, C.int(flags)).Err()
+	return CPLErr(C.GDALCreateDatasetMaskBand(dataset.cval, C.int(flags))).Err()
 }
 
 // CopyWholeRaster copies all dataset raster data
@@ -392,11 +402,13 @@ func (sourceDataset Dataset) CopyWholeRaster(
 	}
 	cOptions[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALDatasetCopyWholeRaster(
-		sourceDataset.cval,
-		destDataset.cval,
-		(**C.char)(unsafe.Pointer(&cOptions[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALDatasetCopyWholeRaster(
+			sourceDataset.cval,
+			destDataset.cval,
+			(**C.char)(unsafe.Pointer(&cOptions[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
