@@ -1641,8 +1641,7 @@ func VSIFileFromMemBuffer(filename string, data []byte, takeOwnership bool) (VSI
 	return VSIFile{file}, nil
 }
 
-// Set a credential (or more generally an option related to a virtual file system) for a given path prefix.
-func VSISetCredential(path string, key string, value string) {
+func VSISetPathSpecificOption(path string, key string, value string) {
 
 	cPath := C.CString(path)
 	cKey := C.CString(key)
@@ -1653,15 +1652,14 @@ func VSISetCredential(path string, key string, value string) {
 		C.free(unsafe.Pointer(cValue))
 	}()
 
-	C.VSISetCredential(cPath, cKey, cValue)
+	C.VSISetPathSpecificOption(cPath, cKey, cValue)
 }
 
-// Clear credentials set with VSISetCredential()
-func VSIClearCredentials(path string) {
+func VSIClearPathSpecificOption(path string) {
 	cPath := C.CString(path)
 	defer C.free(unsafe.Pointer(cPath))
 
-	C.VSIClearCredentials(cPath)
+	C.VSIClearPathSpecificOptions(cPath)
 }
 
 /*
