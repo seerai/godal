@@ -94,12 +94,14 @@ func (src RasterBand) ComputeProximity(
 	}
 	opts[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALComputeProximity(
-		src.cval,
-		dest.cval,
-		(**C.char)(unsafe.Pointer(&opts[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALComputeProximity(
+			src.cval,
+			dest.cval,
+			(**C.char)(unsafe.Pointer(&opts[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
 
@@ -124,15 +126,17 @@ func (src RasterBand) FillNoData(
 	}
 	opts[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALFillNodata(
-		src.cval,
-		mask.cval,
-		C.double(distance),
-		0,
-		C.int(iterations),
-		(**C.char)(unsafe.Pointer(&opts[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALFillNodata(
+			src.cval,
+			mask.cval,
+			C.double(distance),
+			0,
+			C.int(iterations),
+			(**C.char)(unsafe.Pointer(&opts[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
 
@@ -157,14 +161,16 @@ func (src RasterBand) Polygonize(
 	}
 	opts[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALPolygonize(
-		src.cval,
-		mask.cval,
-		layer.cval,
-		C.int(fieldIndex),
-		(**C.char)(unsafe.Pointer(&opts[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALPolygonize(
+			src.cval,
+			mask.cval,
+			layer.cval,
+			C.int(fieldIndex),
+			(**C.char)(unsafe.Pointer(&opts[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
 
@@ -189,14 +195,16 @@ func (src RasterBand) FPolygonize(
 	}
 	opts[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALFPolygonize(
-		src.cval,
-		mask.cval,
-		layer.cval,
-		C.int(fieldIndex),
-		(**C.char)(unsafe.Pointer(&opts[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALFPolygonize(
+			src.cval,
+			mask.cval,
+			layer.cval,
+			C.int(fieldIndex),
+			(**C.char)(unsafe.Pointer(&opts[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
 
@@ -220,15 +228,17 @@ func (src RasterBand) SieveFilter(
 	}
 	opts[length] = (*C.char)(unsafe.Pointer(nil))
 
-	return C.GDALSieveFilter(
-		src.cval,
-		mask.cval,
-		dest.cval,
-		C.int(threshold),
-		C.int(connectedness),
-		(**C.char)(unsafe.Pointer(&opts[0])),
-		C.goGDALProgressFuncProxyB(),
-		unsafe.Pointer(arg),
+	return CPLErr(
+		C.GDALSieveFilter(
+			src.cval,
+			mask.cval,
+			dest.cval,
+			C.int(threshold),
+			C.int(connectedness),
+			(**C.char)(unsafe.Pointer(&opts[0])),
+			C.goGDALProgressFuncProxyB(),
+			unsafe.Pointer(arg),
+		),
 	).Err()
 }
 
