@@ -49,7 +49,6 @@ jobs:
           minor_pattern: "(MINOR)"
           search_commit_body: true
           format: "${major}.${minor}.${patch}"
-          short_tags: false
       - name: Create tag
         id: tag
         run: |
