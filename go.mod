@@ -2,10 +2,7 @@ module github.com/seerai/godal
 
 go 1.19
 
-require (
-	github.com/stretchr/testify v1.8.1
-	github.com/twpayne/go-geom v1.5.2
-)
+require github.com/stretchr/testify v1.8.4
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
