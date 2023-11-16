@@ -10,7 +10,7 @@ jobs:
     container: golang:1-alpine
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install GDAL Dev libs
         run: |
