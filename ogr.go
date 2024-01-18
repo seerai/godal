@@ -11,6 +11,7 @@ package gdal
 */
 import "C"
 import (
+	"errors"
 	"reflect"
 	"time"
 	"unsafe"
@@ -616,6 +617,15 @@ func (geom Geometry) IsEmpty() bool {
 func (geom Geometry) IsValid() bool {
 	val := C.OGR_G_IsValid(geom.cval)
 	return val != 0
+}
+
+// try to make geometry valid
+func (geom Geometry) MakeValid() (Geometry, error) {
+	newGeom := C.OGR_G_MakeValid(geom.cval)
+	if newGeom == nil {
+		return Geometry{}, errors.New("unable to make geometry valid")
+	}
+	return Geometry{newGeom}, nil
 }
 
 // Test if the geometry is simple
