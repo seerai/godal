@@ -42,6 +42,11 @@ func (sr SpatialReference) FromWKT(wkt string) error {
 	return OGRErr(C.OSRImportFromWkt(sr.cval, &cString)).Err()
 }
 
+// Initialize SRS based on URN string
+func (sr SpatialReference) FromURN(urn string) error {
+	return sr.SetFromUserInput(urn)
+}
+
 // Export coordinate system to WKT
 func (sr SpatialReference) ToWKT() (string, error) {
 	var p *C.char
@@ -315,7 +320,6 @@ func (sr SpatialReference) SetLinearUnitsAndUpdateParameters(name string, toMete
 func (sr SpatialReference) LinearUnits() (string, float64) {
 	var x *C.char
 	factor := C.OSRGetLinearUnits(sr.cval, &x)
-	defer C.free(unsafe.Pointer(x))
 	return C.GoString(x), float64(factor)
 }
 
@@ -325,7 +329,6 @@ func (sr SpatialReference) TargetLinearUnits(target string) (string, float64) {
 	defer C.free(unsafe.Pointer(cTarget))
 	var x *C.char
 	factor := C.OSRGetTargetLinearUnits(sr.cval, cTarget, &x)
-	defer C.free(unsafe.Pointer(x))
 	return C.GoString(x), float64(factor)
 }
 
