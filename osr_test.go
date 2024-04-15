@@ -2,6 +2,7 @@ package gdal_test
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	gdal "github.com/seerai/godal"
@@ -32,5 +33,17 @@ func TestLinearUnits(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "metre", units)
 	assert.Equal(t, 1.0, value)
+	sr.Destroy()
+}
 
+func TestAngularUnits(t *testing.T) {
+	sr := gdal.CreateSpatialReference(nil)
+	err := sr.FromURN("urn:ogc:def:crs:EPSG::4326")
+	assert.NoError(t, err)
+
+	units, value := sr.AngularUnits()
+	assert.NoError(t, err)
+	assert.Equal(t, "degree", units)
+	assert.Equal(t, math.Pi/180, value)
+	sr.Destroy()
 }
