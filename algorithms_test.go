@@ -1,7 +1,6 @@
 package gdal_test
 
 import (
-	"fmt"
 	"testing"
 
 	gdal "github.com/seerai/godal"
@@ -34,7 +33,6 @@ func TestRPCs(t *testing.T) {
 
 	tr := gdal.CreateRPCTransformer(rpcs, true, 0.0, []string{})
 	defer tr.Destroy()
-	fmt.Println(rpcs)
 
 	x := []float64{0.0, 3651.0, 0, 3651.0}
 	y := []float64{0.0, 0.0, 3738.0, 3738.0}
