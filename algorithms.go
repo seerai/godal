@@ -11,11 +11,20 @@ package gdal
 */
 import "C"
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"unsafe"
 )
 
 var _ = fmt.Println
+
+const (
+	RPC_LINE_NUM_COEFF = "LINE_NUM_COEFF"
+	RPC_LINE_DEN_COEFF = "LINE_DEN_COEFF"
+	RPC_SAMP_NUM_COEFF = "SAMP_NUM_COEFF"
+	RPC_SAMP_DEN_COEFF = "SAMP_DEN_COEFF"
+)
 
 /* --------------------------------------------- */
 /* Misc functions                                */
@@ -265,7 +274,111 @@ func (src RasterBand) SieveFilter(
 //Unimplemented: DestroyTPSTransformer
 //Unimplemented: TPSTransform
 
-//Unimplemented: CreateRPCTransformer
+type RPCInfoV2 struct {
+	cval C.GDALRPCInfoV2
+}
+
+func ExtractRPCInfoV2(rpcMetadata []string) (RPCInfoV2, error) {
+	// Convert rpcMetadata to C array
+	opts := make([]*C.char, len(rpcMetadata)+1)
+	for i, s := range rpcMetadata {
+		opts[i] = C.CString(s)
+		defer C.free(unsafe.Pointer(opts[i]))
+	}
+	opts[len(rpcMetadata)] = (*C.char)(unsafe.Pointer(nil))
+
+	var rpc RPCInfoV2
+	passed := (*C.GDALRPCInfoV2)(unsafe.Pointer(&rpc.cval))
+	if C.GDALExtractRPCInfoV2((**C.char)(unsafe.Pointer(&opts[0])), passed) == 0 {
+		bigStr := strings.Join(rpcMetadata, "")
+		if !strings.Contains(bigStr, RPC_LINE_NUM_COEFF) {
+			return rpc, errors.New("RPC metadata does not contain LINE_NUM_COEFF")
+		}
+		if !strings.Contains(bigStr, RPC_LINE_DEN_COEFF) {
+			return rpc, errors.New("RPC metadata does not contain LINE_DEN_COEFF")
+		}
+		if !strings.Contains(bigStr, RPC_SAMP_NUM_COEFF) {
+			return rpc, errors.New("RPC metadata does not contain SAMP_NUM_COEFF")
+		}
+		if !strings.Contains(bigStr, RPC_SAMP_DEN_COEFF) {
+			return rpc, errors.New("RPC metadata does not contain SAMP_DEN_COEFF")
+		}
+
+		return rpc, errors.New("GDALExtractRPCInfoV2 failed")
+	}
+	return rpc, nil
+}
+
+type RPCTransformer struct {
+	// void*
+	cval unsafe.Pointer
+}
+
+func CreateRPCTransformer(rpc RPCInfoV2, reversed bool, threshold float64, options []string) RPCTransformer {
+	opts := make([]*C.char, len(options)+1)
+	for i, s := range options {
+		opts[i] = C.CString(s)
+		defer C.free(unsafe.Pointer(opts[i]))
+	}
+	opts[len(options)] = (*C.char)(unsafe.Pointer(nil))
+
+	bReversed := 0
+	if reversed {
+		bReversed = 1
+	}
+
+	return RPCTransformer{C.GDALCreateRPCTransformerV2(
+		&rpc.cval,
+		C.int(bReversed),
+		C.double(threshold),
+		(**C.char)(unsafe.Pointer(&opts[0])),
+	)}
+}
+
+func (t RPCTransformer) Destroy() {
+	if t.cval != nil {
+		C.GDALDestroyRPCTransformer(t.cval)
+	}
+}
+
+// Transform a slice of x/y/z points using the RPC transformer. If reversed is true, the inverse transformation is applied.
+// If the transformation fails for any point, an error is returned.
+func (t RPCTransformer) Transform(x, y, z []float64, reversed bool) (xo, yo, zo []float64, err error) {
+	if t.cval == nil {
+		return nil, nil, nil, fmt.Errorf("RPCTransformer is not initialized")
+	}
+	nPoints := len(x)
+	if nPoints != len(y) || nPoints != len(z) {
+		return nil, nil, nil, fmt.Errorf("x, y, z slices must have the same length")
+	}
+
+	xo = make([]float64, nPoints)
+	yo = make([]float64, nPoints)
+	zo = make([]float64, nPoints)
+	copy(xo, x)
+	copy(yo, y)
+	copy(zo, z)
+
+	res := make([]int32, nPoints)
+	C.GDALRPCTransform(
+		t.cval,
+		C.int(1),
+		C.int(nPoints),
+		(*C.double)(&xo[0]),
+		(*C.double)(&yo[0]),
+		(*C.double)(&zo[0]),
+		(*C.int)(unsafe.Pointer(&res[0])),
+	)
+
+	for i, r := range res {
+		if r == 0 {
+			err = errors.Join(fmt.Errorf("rpc transform failed for (%f, %f, %f)", x[i], y[i], z[i]), err)
+		}
+	}
+
+	return xo, yo, zo, nil
+}
+
 //Unimplemented: DestroyRPCTransformer
 //Unimplemented: RPCTransform
 
