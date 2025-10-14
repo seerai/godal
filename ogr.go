@@ -926,6 +926,9 @@ func (fd *FeatureDefinition) Destroy() {
 
 // Drop a reference, and delete object if no references remain
 func (fd FeatureDefinition) Release() {
+	if fd.cval == nil {
+		return
+	}
 	C.OGR_FD_Release(fd.cval)
 }
 
@@ -1570,6 +1573,9 @@ func OpenSharedDataSource(name string, update int) DataSource {
 
 // Drop a reference to this datasource and destroy if reference is zero
 func (ds DataSource) Release() error {
+	if ds.cval == nil {
+		return nil
+	}
 	return OGRErr(C.OGRReleaseDataSource(ds.cval)).Err()
 }
 
@@ -1714,6 +1720,9 @@ func (ds DataSource) ExecuteSQL(sql string, filter Geometry, dialect string) Lay
 
 // Release the results of ExecuteSQL
 func (ds DataSource) ReleaseResultSet(layer Layer) {
+	if ds.cval == nil {
+		return
+	}
 	C.OGR_DS_ReleaseResultSet(ds.cval, layer.cval)
 }
 
