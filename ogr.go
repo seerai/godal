@@ -604,11 +604,17 @@ func (geom Geometry) Centroid() Geometry {
 
 // Clear the geometry to its uninitialized state
 func (geom Geometry) Empty() {
+	if geom.cval == nil {
+		return
+	}
 	C.OGR_G_Empty(geom.cval)
 }
 
 // Test if the geometry is empty
 func (geom Geometry) IsEmpty() bool {
+	if geom.cval == nil {
+		return true
+	}
 	val := C.OGR_G_IsEmpty(geom.cval)
 	return val != 0
 }
