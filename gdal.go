@@ -1663,13 +1663,14 @@ func VSIClearPathSpecificOption(path string) {
 	C.VSIClearPathSpecificOptions(cPath)
 }
 
-func VSIGetPathSpecificOption(path string, key string) string {
+func VSIGetPathSpecificOption(path string, key string, defaultValue string) string {
 	cPath := C.CString(path)
 	cKey := C.CString(key)
-	cDefault := C.CString("")
+	cDefault := C.CString(defaultValue)
 	defer func() {
 		C.free(unsafe.Pointer(cPath))
 		C.free(unsafe.Pointer(cKey))
+		C.free(unsafe.Pointer(cDefault))
 	}()
 
 	cValue := C.VSIGetPathSpecificOption(cPath, cKey, cDefault)
