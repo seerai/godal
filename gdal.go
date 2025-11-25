@@ -183,11 +183,12 @@ const (
 type OpenFlag int
 
 const (
-	GDALOFRaster   = OpenFlag(C.GDAL_OF_RASTER)
-	GDALOFVector   = OpenFlag(C.GDAL_OF_VECTOR)
-	GDALOFGNN      = OpenFlag(C.GDAL_OF_GNM)
-	GDALOFReadOnly = OpenFlag(C.GDAL_OF_READONLY)
-	GDALOFUpdate   = OpenFlag(C.GDAL_OF_UPDATE)
+	GDALOFRaster       = OpenFlag(C.GDAL_OF_RASTER)
+	GDALOFVector       = OpenFlag(C.GDAL_OF_VECTOR)
+	GDALOFGNN          = OpenFlag(C.GDAL_OF_GNM)
+	GDALOFReadOnly     = OpenFlag(C.GDAL_OF_READONLY)
+	GDALOFUpdate       = OpenFlag(C.GDAL_OF_UPDATE)
+	GDALOFVerboseError = OpenFlag(C.GDAL_OF_VERBOSE_ERROR)
 )
 
 // Read/Write flag for RasterIO() method
@@ -1660,6 +1661,19 @@ func VSIClearPathSpecificOption(path string) {
 	defer C.free(unsafe.Pointer(cPath))
 
 	C.VSIClearPathSpecificOptions(cPath)
+}
+
+func VSIGetPathSpecificOption(path string, key string) string {
+	cPath := C.CString(path)
+	cKey := C.CString(key)
+	cDefault := C.CString("")
+	defer func() {
+		C.free(unsafe.Pointer(cPath))
+		C.free(unsafe.Pointer(cKey))
+	}()
+
+	cValue := C.VSIGetPathSpecificOption(cPath, cKey, cDefault)
+	return C.GoString(cValue)
 }
 
 /*
