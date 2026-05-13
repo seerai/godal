@@ -1047,6 +1047,13 @@ func (feature *Feature) Destroy() {
 	}
 }
 
+// IsNil reports whether the feature handle is nil. NextFeature returns a
+// zero-valued Feature when the layer is exhausted; callers should check this
+// before dereferencing fields or geometry.
+func (feature Feature) IsNil() bool {
+	return feature.cval == nil
+}
+
 // Fetch feature definition
 func (feature Feature) Definition() FeatureDefinition {
 	fd := C.OGR_F_GetDefnRef(feature.cval)
