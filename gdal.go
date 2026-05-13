@@ -45,11 +45,25 @@ var (
 	ErrFailure = errors.New("Failure Error")
 	ErrFatal   = errors.New("Fatal Error")
 	ErrIllegal = errors.New("Illegal Error")
+
+	// OGR-specific error codes (OGRERR_*) beyond the CPL range.
+	// See gdal/ogr/ogr_core.h.
+	ErrOGRNotEnoughData          = errors.New("OGR: not enough data")
+	ErrOGRNotEnoughMemory        = errors.New("OGR: not enough memory")
+	ErrOGRUnsupportedGeometry    = errors.New("OGR: unsupported geometry type")
+	ErrOGRUnsupportedOperation   = errors.New("OGR: unsupported operation")
+	ErrOGRCorruptData            = errors.New("OGR: corrupt data")
+	ErrOGRFailure                = errors.New("OGR: failure")
+	ErrOGRUnsupportedSRS         = errors.New("OGR: unsupported SRS")
+	ErrOGRInvalidHandle          = errors.New("OGR: invalid handle")
+	ErrOGRNonExistingFeature     = errors.New("OGR: non-existing feature")
 )
 
 type CPLErr C.CPLErr
 
-// Error handling.  The following is bare-bones, and needs to be replaced with something more useful.
+// Err converts a CPLErr code to a Go error. Only codes 0-4 are defined by CPL;
+// any other value is treated as an unknown code wrapped around ErrIllegal so
+// that callers can still match it with errors.Is(err, ErrIllegal).
 func (err CPLErr) Err() error {
 	switch err {
 	case 0:
@@ -61,27 +75,49 @@ func (err CPLErr) Err() error {
 	case 3:
 		return ErrFailure
 	case 4:
-		return ErrFailure
+		return ErrFatal
 	}
-	return ErrIllegal
+	return fmt.Errorf("CPLErr unknown code %d: %w", int(err), ErrIllegal)
 }
 
 type OGRErr C.OGRErr
 
+// Err converts an OGRErr code to a Go error. OGRERR_* codes are independent of
+// CPLErr — they share only the 0=success convention. Returning the full set lets
+// callers distinguish e.g. corrupt data from an invalid handle without reading
+// CPLGetLastErrorMsg (which is thread-local and stateful across operations).
 func (err OGRErr) Err() error {
 	switch err {
-	case 0:
+	case 0: // OGRERR_NONE
 		return nil
-	case 1:
-		return ErrDebug
-	case 2:
-		return ErrWarning
-	case 3:
-		return ErrFailure
-	case 4:
-		return ErrFailure
+	case 1: // OGRERR_NOT_ENOUGH_DATA
+		return ErrOGRNotEnoughData
+	case 2: // OGRERR_NOT_ENOUGH_MEMORY
+		return ErrOGRNotEnoughMemory
+	case 3: // OGRERR_UNSUPPORTED_GEOMETRY_TYPE
+		return ErrOGRUnsupportedGeometry
+	case 4: // OGRERR_UNSUPPORTED_OPERATION
+		return ErrOGRUnsupportedOperation
+	case 5: // OGRERR_CORRUPT_DATA
+		return ErrOGRCorruptData
+	case 6: // OGRERR_FAILURE
+		return ErrOGRFailure
+	case 7: // OGRERR_UNSUPPORTED_SRS
+		return ErrOGRUnsupportedSRS
+	case 8: // OGRERR_INVALID_HANDLE
+		return ErrOGRInvalidHandle
+	case 9: // OGRERR_NON_EXISTING_FEATURE
+		return ErrOGRNonExistingFeature
 	}
-	return ErrIllegal
+	return fmt.Errorf("OGRErr unknown code %d: %w", int(err), ErrIllegal)
+}
+
+func GetLastError() error {
+	if errMsg := C.GoString(C.CPLGetLastErrorMsg()); errMsg != "" {
+		return errors.New(strings.TrimSpace(errMsg))
+	}
+
+	return nil
 }
 
 // Pixel data types
